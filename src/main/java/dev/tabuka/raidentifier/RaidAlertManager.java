@@ -1,6 +1,7 @@
 package dev.tabuka.raidentifier;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -81,20 +82,22 @@ public class RaidAlertManager {
 
 	private static void sendPhoneNotification(String nearestName, double distance, int count) {
 		RaidAlertConfig.ConfigData cfg = RaidAlertConfig.getConfig();
-		if (!cfg.phoneNotify || cfg.ntfyTopic == null || cfg.ntfyTopic.isBlank()) {
+		if (!cfg.phoneNotify || cfg.telegramToken == null || cfg.telegramToken.isBlank()
+				|| cfg.telegramChatId == null || cfg.telegramChatId.isBlank()) {
 			return;
 		}
 
 		try {
-			String body = (count == 1)
-				? "Jatekos a kozelben: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)"
-				: count + " jatekos a kozelben! Legkozelebb: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)";
+			String message = (count == 1)
+				? "🚨 RAID ALERT\nJatekos a kozelben: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)"
+				: "🚨 RAID ALERT\n" + count + " jatekos a kozelben! Legkozelebb: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)";
+
+			String body = "chat_id=" + URLEncoder.encode(cfg.telegramChatId.trim(), StandardCharsets.UTF_8)
+				+ "&text=" + URLEncoder.encode(message, StandardCharsets.UTF_8);
 
 			HttpRequest req = HttpRequest.newBuilder()
-				.uri(URI.create("https://ntfy.sh/" + cfg.ntfyTopic.trim()))
-				.header("Title", "RAID ALERT")
-				.header("Priority", "urgent")
-				.header("Tags", "rotating_light")
+				.uri(URI.create("https://api.telegram.org/bot" + cfg.telegramToken.trim() + "/sendMessage"))
+				.header("Content-Type", "application/x-www-form-urlencoded")
 				.POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
 				.build();
 

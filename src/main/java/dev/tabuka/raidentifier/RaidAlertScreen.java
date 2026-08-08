@@ -10,7 +10,8 @@ public class RaidAlertScreen extends Screen {
 	private TextFieldWidget detectionRangeField;
 	private TextFieldWidget volumeField;
 	private TextFieldWidget cooldownField;
-	private TextFieldWidget ntfyTopicField;
+	private TextFieldWidget telegramTokenField;
+	private TextFieldWidget telegramChatIdField;
 	private ButtonWidget enableButton;
 	private ButtonWidget soundToggleButton;
 	private ButtonWidget soundTypeButton;
@@ -71,17 +72,22 @@ public class RaidAlertScreen extends Screen {
 		this.addDrawableChild(this.soundTypeButton);
 
 		String phoneText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
-		this.phoneNotifyButton = ButtonWidget.builder(Text.literal("Phone (ntfy): " + phoneText), (button) -> {
+		this.phoneNotifyButton = ButtonWidget.builder(Text.literal("Phone (Telegram): " + phoneText), (button) -> {
 			config.phoneNotify = !config.phoneNotify;
 			String newText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
-			button.setMessage(Text.literal("Phone (ntfy): " + newText));
+			button.setMessage(Text.literal("Phone (Telegram): " + newText));
 		}).dimensions(centerX - 80, startY + spacing * 6, 160, 20).build();
 		this.addDrawableChild(this.phoneNotifyButton);
 
-		this.ntfyTopicField = new TextFieldWidget(this.textRenderer, centerX - 100, startY + spacing * 7 + 12, 200, 20, Text.literal("ntfy topic"));
-		this.ntfyTopicField.setMaxLength(64);
-		this.ntfyTopicField.setText(config.ntfyTopic == null ? "" : config.ntfyTopic);
-		this.addDrawableChild(this.ntfyTopicField);
+		this.telegramTokenField = new TextFieldWidget(this.textRenderer, centerX - 110, startY + spacing * 7 + 12, 220, 20, Text.literal("Telegram bot token"));
+		this.telegramTokenField.setMaxLength(128);
+		this.telegramTokenField.setText(config.telegramToken == null ? "" : config.telegramToken);
+		this.addDrawableChild(this.telegramTokenField);
+
+		this.telegramChatIdField = new TextFieldWidget(this.textRenderer, centerX - 110, startY + spacing * 8 + 24, 220, 20, Text.literal("Telegram chat ID"));
+		this.telegramChatIdField.setMaxLength(64);
+		this.telegramChatIdField.setText(config.telegramChatId == null ? "" : config.telegramChatId);
+		this.addDrawableChild(this.telegramChatIdField);
 
 		this.saveButton = ButtonWidget.builder(Text.literal("§a✓ Save Settings"), (button) -> {
 			try {
@@ -93,19 +99,20 @@ public class RaidAlertScreen extends Screen {
 				config.volume = Math.max(0.0f, Math.min(1.0f, config.volume));
 				config.alertCooldown = Math.max(1, Math.min(60, config.alertCooldown));
 
-				config.ntfyTopic = this.ntfyTopicField.getText().trim();
+				config.telegramToken = this.telegramTokenField.getText().trim();
+				config.telegramChatId = this.telegramChatIdField.getText().trim();
 
 				RaidAlertConfig.setConfig(config);
 				this.client.setScreen(null);
 			} catch (NumberFormatException e) {
 				RaidIdentifier.LOGGER.error("Invalid input", e);
 			}
-		}).dimensions(centerX - 80, startY + spacing * 8 + 12, 160, 20).build();
+		}).dimensions(centerX - 80, startY + spacing * 9 + 36, 160, 20).build();
 		this.addDrawableChild(this.saveButton);
 
 		this.addDrawableChild(ButtonWidget.builder(Text.literal("§cClose"), (button) -> {
 			this.client.setScreen(null);
-		}).dimensions(centerX - 80, startY + spacing * 9 + 12, 160, 20).build());
+		}).dimensions(centerX - 80, startY + spacing * 10 + 36, 160, 20).build());
 	}
 
 	@Override
@@ -116,7 +123,8 @@ public class RaidAlertScreen extends Screen {
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Detection Range (blocks):"), this.width / 2 - 100, 35, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Volume (0.0-1.0):"), this.width / 2 - 100, 65, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Alert Cooldown (1-60s):"), this.width / 2 - 100, 95, 0xAAAAFF);
-		context.drawTextWithShadow(this.textRenderer, Text.literal("ntfy.sh topic (telefon app-ban erre iratkozz fel):"), this.width / 2 - 100, 30 + 30 * 7, 0xAAFFAA);
+		context.drawTextWithShadow(this.textRenderer, Text.literal("Telegram bot token:"), this.width / 2 - 110, 30 + 30 * 7, 0xAAFFAA);
+		context.drawTextWithShadow(this.textRenderer, Text.literal("Telegram chat ID:"), this.width / 2 - 110, 30 + 30 * 8 + 12, 0xAAFFAA);
 	}
 
 	@Override

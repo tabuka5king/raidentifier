@@ -23,8 +23,9 @@ public class RaidAlertConfig {
 		public boolean playSound = true;
 		public String soundType = "bell"; // bell, alarm, beep
 		public int alertCooldown = 5; // seconds
-		public boolean phoneNotify = true; // ntfy.sh telefon ertesites
-		public String ntfyTopic = "raid-alert-tabuka-k7m2x9"; // ntfy.sh topic (privat, valtoztathato)
+		public boolean phoneNotify = true; // Telegram telefon ertesites
+		public String telegramToken = ""; // BotFather bot token
+		public String telegramChatId = ""; // sajat chat ID (@userinfobot adja meg)
 	}
 
 	private static ConfigData config = new ConfigData();
