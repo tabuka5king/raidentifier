@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +27,19 @@ public class RaidAlertManager {
 
 		double detectionRange = RaidAlertConfig.getConfig().detectionRange;
 		long alertCooldown = (long) RaidAlertConfig.getConfig().alertCooldown * 1000;
-		Vec3d playerPos = client.player.getPos();
+		double px = client.player.getX();
+		double py = client.player.getY();
+		double pz = client.player.getZ();
 
 		for (PlayerEntity player : client.world.getPlayers()) {
 			if (player == client.player || player.isInvisible()) {
 				continue;
 			}
 
-			double distance = playerPos.distanceTo(player.getPos());
+			double dx = px - player.getX();
+			double dy = py - player.getY();
+			double dz = pz - player.getZ();
+			double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
 			if (distance <= detectionRange) {
 				String playerName = player.getName().getString();
