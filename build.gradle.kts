@@ -14,6 +14,9 @@ group = rootProject.properties["maven_group"] ?: "dev.tabuka"
 repositories {
 	mavenCentral()
 	maven {
+		url = uri("https://maven.fabricmc.net/")
+	}
+	maven {
 		url = uri("https://api.modrinth.com/maven")
 	}
 	maven {
