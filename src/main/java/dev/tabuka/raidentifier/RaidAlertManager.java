@@ -20,8 +20,8 @@ public class RaidAlertManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger("RaidIdentifier");
 	private static final Map<String, Long> lastAlertTime = new HashMap<>();
 	private static long lastGeneralAlert = 0;
-	private static long lastCall = 0;
-	private static final long CALL_MIN_INTERVAL_MS = 60000; // max 1 hivas / perc
+	private static long lastLoud = 0;
+	private static final long LOUD_MIN_INTERVAL_MS = 60000; // max 1 hangos riasztas / perc
 	private static final HttpClient HTTP = HttpClient.newHttpClient();
 
 	public static void init() {
@@ -77,7 +77,7 @@ public class RaidAlertManager {
 			long now = System.currentTimeMillis();
 			if (now - lastGeneralAlert >= alertCooldown) {
 				sendPhoneNotification(nearestName, nearestDist, nearbyCount);
-				triggerCall(nearestName, nearbyCount);
+				sendLoudNtfy(nearestName, nearestDist, nearbyCount);
 				lastGeneralAlert = now;
 			}
 		}
@@ -110,36 +110,34 @@ public class RaidAlertManager {
 		}
 	}
 
-	private static void triggerCall(String nearestName, int count) {
+	private static void sendLoudNtfy(String nearestName, double distance, int count) {
 		RaidAlertConfig.ConfigData cfg = RaidAlertConfig.getConfig();
-		if (!cfg.phoneCall || cfg.callmebotUser == null || cfg.callmebotUser.isBlank()) {
+		if (!cfg.ntfyLoud || cfg.ntfyTopic == null || cfg.ntfyTopic.isBlank()) {
 			return;
 		}
 
 		long now = System.currentTimeMillis();
-		if (now - lastCall < CALL_MIN_INTERVAL_MS) {
-			return; // ne csorogjon folyamatosan
+		if (now - lastLoud < LOUD_MIN_INTERVAL_MS) {
+			return; // ne szoljon folyamatosan a hangos riasztas
 		}
-		lastCall = now;
+		lastLoud = now;
 
 		try {
-			String text = (count == 1)
-				? "Raid riasztas! Egy jatekos a kozeledben van."
-				: "Raid riasztas! " + count + " jatekos a kozeledben.";
-
-			String url = "https://api.callmebot.com/start.php"
-				+ "?user=" + URLEncoder.encode(cfg.callmebotUser.trim(), StandardCharsets.UTF_8)
-				+ "&text=" + URLEncoder.encode(text, StandardCharsets.UTF_8)
-				+ "&lang=hu-HU-Standard-A&rpt=2";
+			String body = (count == 1)
+				? "Jatekos a kozelben: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)"
+				: count + " jatekos a kozelben! Legkozelebb: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)";
 
 			HttpRequest req = HttpRequest.newBuilder()
-				.uri(URI.create(url))
-				.GET()
+				.uri(URI.create("https://ntfy.sh/" + cfg.ntfyTopic.trim()))
+				.header("Title", "RAID ALERT")
+				.header("Priority", "urgent")
+				.header("Tags", "rotating_light")
+				.POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
 				.build();
 
 			HTTP.sendAsync(req, HttpResponse.BodyHandlers.discarding());
 		} catch (Exception e) {
-			LOGGER.error("Phone call failed", e);
+			LOGGER.error("Loud ntfy failed", e);
 		}
 	}
 

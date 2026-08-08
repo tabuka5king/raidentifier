@@ -80,11 +80,11 @@ public class RaidAlertScreen extends Screen {
 		}).dimensions(centerX - 110, startY + spacing * 6, 105, 20).build();
 		this.addDrawableChild(this.phoneNotifyButton);
 
-		String callText = config.phoneCall ? "§a[ON]" : "§c[OFF]";
-		this.phoneCallButton = ButtonWidget.builder(Text.literal("Call: " + callText), (button) -> {
-			config.phoneCall = !config.phoneCall;
-			String newText = config.phoneCall ? "§a[ON]" : "§c[OFF]";
-			button.setMessage(Text.literal("Call: " + newText));
+		String loudText = config.ntfyLoud ? "§a[ON]" : "§c[OFF]";
+		this.phoneCallButton = ButtonWidget.builder(Text.literal("Loud: " + loudText), (button) -> {
+			config.ntfyLoud = !config.ntfyLoud;
+			String newText = config.ntfyLoud ? "§a[ON]" : "§c[OFF]";
+			button.setMessage(Text.literal("Loud: " + newText));
 		}).dimensions(centerX + 5, startY + spacing * 6, 105, 20).build();
 		this.addDrawableChild(this.phoneCallButton);
 
