@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "raidentifier",
+  "version": "1.0.0",
+  "name": "RaidIdentifier",
+  "description": "Raid alert mod with player proximity detection",
+  "authors": ["TabuKa"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {},
+  "mixins": []
+}
