@@ -93,14 +93,12 @@ public class RaidAlertScreen extends Screen {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		this.renderBackground(context, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 10, 0xFFFFFF);
 
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Detection Range (blocks):"), this.width / 2 - 100, 35, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Volume (0.0-1.0):"), this.width / 2 - 100, 65, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Alert Cooldown (1-60s):"), this.width / 2 - 100, 95, 0xAAAAFF);
-
-		super.render(context, mouseX, mouseY, delta);
 	}
 
 	@Override
