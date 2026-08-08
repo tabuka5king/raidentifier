@@ -8,6 +8,8 @@
   "contact": {},
   "license": "MIT",
   "environment": "client",
-  "entrypoints": {},
-  "mixins": []
+  "entrypoints": {
+    "main": ["dev.tabuka.raidentifier.RaidIdentifier"]
+  },
+  "mixins": ["raidentifier.mixins.json"]
 }
