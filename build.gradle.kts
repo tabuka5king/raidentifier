@@ -30,7 +30,7 @@ dependencies {
 	val fabricApiVersion: String = rootProject.properties["fabric_version"] as String
 
 	minecraft("com.mojang:minecraft:$minecraftVersion")
-	mappings(loom.officialMojangMappings())
+	mappings("net.fabricmc:yarn:${minecraftVersion}+build.3:v2")
 	modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 }
