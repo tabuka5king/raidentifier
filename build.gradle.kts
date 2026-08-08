@@ -26,11 +26,12 @@ repositories {
 
 dependencies {
 	val minecraftVersion: String = rootProject.properties["minecraft_version"] as String
+	val yarnMappings: String = rootProject.properties["yarn_mappings"] as String
 	val fabricLoaderVersion: String = rootProject.properties["loader_version"] as String
 	val fabricApiVersion: String = rootProject.properties["fabric_version"] as String
 
 	minecraft("com.mojang:minecraft:$minecraftVersion")
-	mappings("net.fabricmc:yarn:${minecraftVersion}+build.3:v2")
+	mappings("net.fabricmc:yarn:${yarnMappings}:v2")
 	modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 }
