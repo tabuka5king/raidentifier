@@ -10,9 +10,11 @@ public class RaidAlertScreen extends Screen {
 	private TextFieldWidget detectionRangeField;
 	private TextFieldWidget volumeField;
 	private TextFieldWidget cooldownField;
+	private TextFieldWidget ntfyTopicField;
 	private ButtonWidget enableButton;
 	private ButtonWidget soundToggleButton;
 	private ButtonWidget soundTypeButton;
+	private ButtonWidget phoneNotifyButton;
 	private ButtonWidget saveButton;
 
 	public RaidAlertScreen() {
@@ -68,6 +70,19 @@ public class RaidAlertScreen extends Screen {
 		}).dimensions(centerX - 80, startY + spacing * 5, 160, 20).build();
 		this.addDrawableChild(this.soundTypeButton);
 
+		String phoneText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
+		this.phoneNotifyButton = ButtonWidget.builder(Text.literal("Phone (ntfy): " + phoneText), (button) -> {
+			config.phoneNotify = !config.phoneNotify;
+			String newText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
+			button.setMessage(Text.literal("Phone (ntfy): " + newText));
+		}).dimensions(centerX - 80, startY + spacing * 6, 160, 20).build();
+		this.addDrawableChild(this.phoneNotifyButton);
+
+		this.ntfyTopicField = new TextFieldWidget(this.textRenderer, centerX - 100, startY + spacing * 7 + 12, 200, 20, Text.literal("ntfy topic"));
+		this.ntfyTopicField.setMaxLength(64);
+		this.ntfyTopicField.setText(config.ntfyTopic == null ? "" : config.ntfyTopic);
+		this.addDrawableChild(this.ntfyTopicField);
+
 		this.saveButton = ButtonWidget.builder(Text.literal("§a✓ Save Settings"), (button) -> {
 			try {
 				config.detectionRange = Double.parseDouble(this.detectionRangeField.getText());
@@ -78,17 +93,19 @@ public class RaidAlertScreen extends Screen {
 				config.volume = Math.max(0.0f, Math.min(1.0f, config.volume));
 				config.alertCooldown = Math.max(1, Math.min(60, config.alertCooldown));
 
+				config.ntfyTopic = this.ntfyTopicField.getText().trim();
+
 				RaidAlertConfig.setConfig(config);
 				this.client.setScreen(null);
 			} catch (NumberFormatException e) {
 				RaidIdentifier.LOGGER.error("Invalid input", e);
 			}
-		}).dimensions(centerX - 80, startY + spacing * 6, 160, 20).build();
+		}).dimensions(centerX - 80, startY + spacing * 8 + 12, 160, 20).build();
 		this.addDrawableChild(this.saveButton);
 
 		this.addDrawableChild(ButtonWidget.builder(Text.literal("§cClose"), (button) -> {
 			this.client.setScreen(null);
-		}).dimensions(centerX - 80, startY + spacing * 7, 160, 20).build());
+		}).dimensions(centerX - 80, startY + spacing * 9 + 12, 160, 20).build());
 	}
 
 	@Override
@@ -99,6 +116,7 @@ public class RaidAlertScreen extends Screen {
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Detection Range (blocks):"), this.width / 2 - 100, 35, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Volume (0.0-1.0):"), this.width / 2 - 100, 65, 0xAAAAFF);
 		context.drawTextWithShadow(this.textRenderer, Text.literal("Alert Cooldown (1-60s):"), this.width / 2 - 100, 95, 0xAAAAFF);
+		context.drawTextWithShadow(this.textRenderer, Text.literal("ntfy.sh topic (telefon app-ban erre iratkozz fel):"), this.width / 2 - 100, 30 + 30 * 7, 0xAAFFAA);
 	}
 
 	@Override

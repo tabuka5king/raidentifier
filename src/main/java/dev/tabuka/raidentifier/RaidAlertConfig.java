@@ -23,6 +23,8 @@ public class RaidAlertConfig {
 		public boolean playSound = true;
 		public String soundType = "bell"; // bell, alarm, beep
 		public int alertCooldown = 5; // seconds
+		public boolean phoneNotify = true; // ntfy.sh telefon ertesites
+		public String ntfyTopic = "raid-alert-tabuka-k7m2x9"; // ntfy.sh topic (privat, valtoztathato)
 	}
 
 	private static ConfigData config = new ConfigData();

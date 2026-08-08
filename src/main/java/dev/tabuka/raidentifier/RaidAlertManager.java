@@ -1,5 +1,10 @@
 package dev.tabuka.raidentifier;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -14,6 +19,7 @@ public class RaidAlertManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger("RaidIdentifier");
 	private static final Map<String, Long> lastAlertTime = new HashMap<>();
 	private static long lastGeneralAlert = 0;
+	private static final HttpClient HTTP = HttpClient.newHttpClient();
 
 	public static void init() {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> tick());
@@ -30,6 +36,10 @@ public class RaidAlertManager {
 		double px = client.player.getX();
 		double py = client.player.getY();
 		double pz = client.player.getZ();
+
+		int nearbyCount = 0;
+		String nearestName = null;
+		double nearestDist = Double.MAX_VALUE;
 
 		for (PlayerEntity player : client.world.getPlayers()) {
 			if (player == client.player || player.isInvisible()) {
@@ -50,7 +60,47 @@ public class RaidAlertManager {
 					triggerAlert(playerName, distance);
 					lastAlertTime.put(playerName, currentTime);
 				}
+
+				nearbyCount++;
+				if (distance < nearestDist) {
+					nearestDist = distance;
+					nearestName = playerName;
+				}
 			}
+		}
+
+		// Telefon ertesites - globalis cooldown, hogy zsufolt szerveren ne spameljen
+		if (nearbyCount > 0 && nearestName != null) {
+			long now = System.currentTimeMillis();
+			if (now - lastGeneralAlert >= alertCooldown) {
+				sendPhoneNotification(nearestName, nearestDist, nearbyCount);
+				lastGeneralAlert = now;
+			}
+		}
+	}
+
+	private static void sendPhoneNotification(String nearestName, double distance, int count) {
+		RaidAlertConfig.ConfigData cfg = RaidAlertConfig.getConfig();
+		if (!cfg.phoneNotify || cfg.ntfyTopic == null || cfg.ntfyTopic.isBlank()) {
+			return;
+		}
+
+		try {
+			String body = (count == 1)
+				? "Jatekos a kozelben: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)"
+				: count + " jatekos a kozelben! Legkozelebb: " + nearestName + " (" + String.format("%.0f", distance) + " blokk)";
+
+			HttpRequest req = HttpRequest.newBuilder()
+				.uri(URI.create("https://ntfy.sh/" + cfg.ntfyTopic.trim()))
+				.header("Title", "RAID ALERT")
+				.header("Priority", "urgent")
+				.header("Tags", "rotating_light")
+				.POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+				.build();
+
+			HTTP.sendAsync(req, HttpResponse.BodyHandlers.discarding());
+		} catch (Exception e) {
+			LOGGER.error("Phone notification failed", e);
 		}
 	}
 
