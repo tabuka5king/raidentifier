@@ -20,6 +20,8 @@ public class RaidAlertManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger("RaidIdentifier");
 	private static final Map<String, Long> lastAlertTime = new HashMap<>();
 	private static long lastGeneralAlert = 0;
+	private static long lastCall = 0;
+	private static final long CALL_MIN_INTERVAL_MS = 60000; // max 1 hivas / perc
 	private static final HttpClient HTTP = HttpClient.newHttpClient();
 
 	public static void init() {
@@ -75,6 +77,7 @@ public class RaidAlertManager {
 			long now = System.currentTimeMillis();
 			if (now - lastGeneralAlert >= alertCooldown) {
 				sendPhoneNotification(nearestName, nearestDist, nearbyCount);
+				triggerCall(nearestName, nearbyCount);
 				lastGeneralAlert = now;
 			}
 		}
@@ -104,6 +107,39 @@ public class RaidAlertManager {
 			HTTP.sendAsync(req, HttpResponse.BodyHandlers.discarding());
 		} catch (Exception e) {
 			LOGGER.error("Phone notification failed", e);
+		}
+	}
+
+	private static void triggerCall(String nearestName, int count) {
+		RaidAlertConfig.ConfigData cfg = RaidAlertConfig.getConfig();
+		if (!cfg.phoneCall || cfg.callmebotUser == null || cfg.callmebotUser.isBlank()) {
+			return;
+		}
+
+		long now = System.currentTimeMillis();
+		if (now - lastCall < CALL_MIN_INTERVAL_MS) {
+			return; // ne csorogjon folyamatosan
+		}
+		lastCall = now;
+
+		try {
+			String text = (count == 1)
+				? "Raid riasztas! Egy jatekos a kozeledben van."
+				: "Raid riasztas! " + count + " jatekos a kozeledben.";
+
+			String url = "https://api.callmebot.com/start.php"
+				+ "?user=" + URLEncoder.encode(cfg.callmebotUser.trim(), StandardCharsets.UTF_8)
+				+ "&text=" + URLEncoder.encode(text, StandardCharsets.UTF_8)
+				+ "&lang=hu-HU-Standard-A&rpt=2";
+
+			HttpRequest req = HttpRequest.newBuilder()
+				.uri(URI.create(url))
+				.GET()
+				.build();
+
+			HTTP.sendAsync(req, HttpResponse.BodyHandlers.discarding());
+		} catch (Exception e) {
+			LOGGER.error("Phone call failed", e);
 		}
 	}
 

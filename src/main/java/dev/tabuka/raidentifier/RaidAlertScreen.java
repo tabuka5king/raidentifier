@@ -16,6 +16,7 @@ public class RaidAlertScreen extends Screen {
 	private ButtonWidget soundToggleButton;
 	private ButtonWidget soundTypeButton;
 	private ButtonWidget phoneNotifyButton;
+	private ButtonWidget phoneCallButton;
 	private ButtonWidget saveButton;
 
 	public RaidAlertScreen() {
@@ -72,12 +73,20 @@ public class RaidAlertScreen extends Screen {
 		this.addDrawableChild(this.soundTypeButton);
 
 		String phoneText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
-		this.phoneNotifyButton = ButtonWidget.builder(Text.literal("Phone (Telegram): " + phoneText), (button) -> {
+		this.phoneNotifyButton = ButtonWidget.builder(Text.literal("TG msg: " + phoneText), (button) -> {
 			config.phoneNotify = !config.phoneNotify;
 			String newText = config.phoneNotify ? "§a[ON]" : "§c[OFF]";
-			button.setMessage(Text.literal("Phone (Telegram): " + newText));
-		}).dimensions(centerX - 80, startY + spacing * 6, 160, 20).build();
+			button.setMessage(Text.literal("TG msg: " + newText));
+		}).dimensions(centerX - 110, startY + spacing * 6, 105, 20).build();
 		this.addDrawableChild(this.phoneNotifyButton);
+
+		String callText = config.phoneCall ? "§a[ON]" : "§c[OFF]";
+		this.phoneCallButton = ButtonWidget.builder(Text.literal("Call: " + callText), (button) -> {
+			config.phoneCall = !config.phoneCall;
+			String newText = config.phoneCall ? "§a[ON]" : "§c[OFF]";
+			button.setMessage(Text.literal("Call: " + newText));
+		}).dimensions(centerX + 5, startY + spacing * 6, 105, 20).build();
+		this.addDrawableChild(this.phoneCallButton);
 
 		this.telegramTokenField = new TextFieldWidget(this.textRenderer, centerX - 110, startY + spacing * 7 + 12, 220, 20, Text.literal("Telegram bot token"));
 		this.telegramTokenField.setMaxLength(128);

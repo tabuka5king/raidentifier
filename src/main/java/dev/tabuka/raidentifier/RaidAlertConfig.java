@@ -26,6 +26,8 @@ public class RaidAlertConfig {
 		public boolean phoneNotify = true; // Telegram telefon ertesites
 		public String telegramToken = ""; // BotFather bot token
 		public String telegramChatId = ""; // sajat chat ID (@userinfobot adja meg)
+		public boolean phoneCall = true; // CallMeBot valodi telefonhivas (hangos, attori a nema modot)
+		public String callmebotUser = ""; // Telegram username (pl. @tabuka5) a CallMeBot hivashoz
 	}
 
 	private static ConfigData config = new ConfigData();
