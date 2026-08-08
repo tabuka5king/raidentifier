@@ -73,9 +73,9 @@ public class RaidAlertManager {
 	private static SoundEvent getSoundEvent() {
 		String soundType = RaidAlertConfig.getConfig().soundType;
 		return switch (soundType) {
-			case "alarm" -> SoundEvents.BLOCK_ANVIL_FALL;
-			case "beep" -> SoundEvents.BLOCK_COMPARATOR_CLICK;
-			default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL;
+			case "alarm" -> SoundEvents.BLOCK_ANVIL_FALL.value();
+			case "beep" -> SoundEvents.BLOCK_COMPARATOR_CLICK.value();
+			default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL.value();
 		};
 	}
 }
